@@ -7,7 +7,7 @@ The graphic data display category of applications has many potential uses. For e
 
 This application demo kit starts to build a working example of such a graphic data display OSX app. The starting point is: https://github.com/kcrossen/Kivy_App_Demo/blob/master/Kivy_App_Demo_PyInstaller_Kit.zip, and I would recommend the use of a Python IDE such as the free and excellent PyCharm Community Edition (https://www.jetbrains.com/pycharm/download). 
 
-For PyCharm setup, which is not covered by PyCharm's installation, use PyCharm's "Terminal" tab to:
+For PyCharm setup to use Kivy, which is not covered by PyCharm's installation, use PyCharm's "Terminal" tab to:
 ```
 $ pip install kivy
 ```
