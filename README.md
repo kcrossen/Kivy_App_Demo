@@ -313,4 +313,4 @@ class TimeSpanControlBar(BoxLayout):
         self.dispatch('on_release', self._period_duration_hours, self._period_end_hours_ago)
         return True
 ```
-This creates a control bar containing two logarithmic sliders. The Python code required for functionality is relatively complicated while the layout is exceedingly simple. In this case, it is harder to see a significant advantage to the kv approach, because the "code behind the form" would have be similar.
+This creates a control bar containing two logarithmic sliders. The Python code required for functionality is relatively complicated while the layout is exceedingly simple. In this case, it is harder to see a significant advantage to the kv approach, because the "code behind the form" would have to be similar.
