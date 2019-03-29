@@ -1,6 +1,6 @@
 # Getting started with Kivy by example
 ### Table of Contents ###
-[Kivy_App_Demo](#incident-analysis)
+[Kivy_App_Demo](#kivy-app-demo)
 
 [Kivy_App_Demo_Step2](#kivy-app-demo-step2)
 
@@ -20,6 +20,8 @@ To setup PyCharm for using Kivy, not covered by PyCharm's installation, use PyCh
 ```
 $ pip install kivy
 ```
+
+[to table of contents](#table-of-contents)
 
 ## Kivy App Demo
 In PyCharm, load the file `Kivy_App_Demo.py` to be found where ever you unpacked the Kivy_App_Demo_PyInstaller_Kit, and you are now good to go.
