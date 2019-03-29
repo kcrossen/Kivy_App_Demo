@@ -1,5 +1,6 @@
-# Kivy by example, 
-#  step-by-step from kit download to OSX application
+# Kivy by example
+## Step-by-step from kit download to OSX application
+
 ### Table of Contents ###
 [Kivy_App_Demo](#kivy-app-demo)
 
