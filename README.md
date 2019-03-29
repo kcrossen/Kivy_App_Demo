@@ -8,6 +8,8 @@
 
 [Kivy_App_Demo_Step3](#kivy-app-demo-step3)
 
+[Kivy_App_Demo OSX App](#kivy-app-demo-osx-app)
+
 Getting started with Kivy can be a very steep learning curve. The demo examples at the Kivy site (kivy.org) are mostly along the lines of Hello World, which are constructed to test a specific feature or demonstrate the use of that feature. They are unlikely to apply meaningfully to what you are trying to accomplish, and that's why you use Python, right?
 
 Another problem with the Kivy demo examples is that they don't much get into some of the more "advanced" features that nearly every application author will eventually want. For example, how do you install your own icon, how do you package a standard OSX application, and so forth?
@@ -420,3 +422,40 @@ The three approaches to encapsulation (kv, subclassing, and functions) are not r
 In PyCharm, load the file `Kivy_App_Demo_Step3.py` also to be found where ever you unpacked the Kivy_App_Demo_PyInstaller_Kit, and you are now good to go for this step.
 
 In this revision you add graphing capability to the "payloads". Since you almost certainly have different target data, I have included a few sample datasets to demonstrate how the plotting is accomplished. If you want the same target datasets, data from AWS/CloudWatch, the CW_Remote repository is your next step.
+
+[to table of contents](#table-of-contents)
+
+## Kivy App Demo OSX App
+To package your application as a standard OSX App, fire up your terminal program (iTerm2 for me).<br/>
+You should have already done:<br/>
+$ pip install pyinstaller<br/>
+or at the very least recently done:<br/>
+$ pip install --upgrade pyinstaller
+Then:
+```
+$ CD `<where you unpacked Kivy_App_Demo_PyInstaller_Kit>`
+$ ls -l ./*
+```
+This should list approximately:
+```
+-rw-r--r--@ 1 Ken  staff   717681 Mar 29 13:41 ./Graph_Index_0.py
+-rw-r--r--  1 Ken  staff   225048 Mar 29 14:12 ./Graph_Index_0.pyc
+-rw-r--r--@ 1 Ken  staff   501094 Mar 29 13:47 ./Graph_Index_1.py
+-rw-r--r--  1 Ken  staff   187954 Mar 29 14:12 ./Graph_Index_1.pyc
+-rwxr--r--  1 Ken  staff    24233 Mar 28 09:35 ./Kivy_App_Demo.py
+-rwxr--r--  1 Ken  staff    29248 Mar 29 14:19 ./Kivy_App_Demo_Step2.py
+-rwxr--r--  1 Ken  staff    44361 Mar 29 14:18 ./Kivy_App_Demo_Step3.py
+-rw-r--r--@ 1 Ken  staff      344 Mar 28 09:43 ./READ_ME_FIRST.txt
+-rw-r--r--  1 Ken  staff   802668 Mar 13 13:19 ./appIcon.icns
+
+./data:
+total 1944
+-rw-r--r--@ 1 Ken  staff  890512 Mar 29 09:11 CW_Remote_Screen.png
+-rw-r--r--@ 1 Ken  staff   85983 Mar 12 21:04 kivy-app-demo-icon-512.png
+-rw-r--r--@ 1 Ken  staff    4637 Mar 27 23:02 time_slider_cursor.png
+-rw-r--r--@ 1 Ken  staff    4551 Mar 27 23:06 time_slider_cursor_disabled.png
+```
+And finally, using the Step3 application as an example:
+```
+$ pyinstaller -F -w --exclude-module _tkinter --exclude-module Tkinter --exclude-module enchant --exclude-module twisted --add-data 'data/*.*:data' --osx-bundle-identifier com.kivyappdemo.kivyappdemostep3  -i appIcon.icns  Kivy_App_Demo_Step3.py
+```
