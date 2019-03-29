@@ -181,6 +181,281 @@ def Period_Span_NYC_Wall_Time ( Period_Hours, Period_End_Hours_Ago ):
     return (calendar.day_abbr[period_begin_NYC_Wall.weekday()] + " " + period_begin_nyc_wall_string + "NYC to " +
             calendar.day_abbr[period_end_NYC_Wall.weekday()] + " " + period_end_nyc_wall_string + "NYC")
 
+def Parse_ISO_DateTime_String ( ISO_DateTime_String ):
+    if (ISO_DateTime_String.endswith('Z')):
+        ISO_DateTime_String = ISO_DateTime_String[:-1] + "+00:00"
+    # "2019-01-03T00:00:05.522864Z"
+    # "2017-04-27T04:02:59.008000+00:00"
+    #  00000000001111111111222222222233
+    #  01234567890123456789012345678901
+    iso_microseconds = 0
+    iso_timezone_string = ''
+    if (len(ISO_DateTime_String) == 19):
+        # No microseconds and no time zone specification
+        # Interpret this as NYC wall time
+        iso_microseconds = 0
+        iso_timezone_string = ''
+    elif ((len(ISO_DateTime_String) == 26) and (ISO_DateTime_String[19] == '.')):
+        # Microseconds but no time zone specification
+        # Interpret this as NYC wall time
+        iso_microseconds = int(ISO_DateTime_String[20:26])
+        iso_timezone_string = ''
+    elif ((ISO_DateTime_String[19] == '+') or (ISO_DateTime_String[19] == '-')):
+        # No microseconds but having time zone specification
+        iso_microseconds = 0
+        iso_timezone_string = ISO_DateTime_String[19:]
+    elif ((ISO_DateTime_String[19] == '.') and
+          ((ISO_DateTime_String[26] == '+') or (ISO_DateTime_String[26] == '-'))):
+        # Both microseconds plus time zone specification
+        iso_microseconds = int(ISO_DateTime_String[20:26])
+        iso_timezone_string = ISO_DateTime_String[26:]
+    # "2016-07-09T03:27:27-0400"
+    #  00000000001111111111222222
+    #  01234567890123456789012345
+    # "2016-07-09T03:27:27-04:00"
+    # Compute UTC offset, supporting all forms: "+0400", "-0400", "+04:00", and "-04:00"
+    if (len(iso_timezone_string) == 0):
+        # In the US, since 2007, DST starts at 2am (standard time) on the second
+        # Sunday in March, which is the first Sunday on or after Mar 8.
+        # and ends at 2am (DST time; 1am standard time) on the first Sunday of Nov.
+        begin_daylight_savings = \
+            datetime.datetime(year=int(ISO_DateTime_String[0:4]), month=3, day=8, hour=2, tzinfo=Eastern_Standard_Time_Zone)
+        begin_daylight_savings += datetime.timedelta(days=(6 - begin_daylight_savings.date().weekday()))
+
+        end_daylight_savings = \
+            datetime.datetime(year=int(ISO_DateTime_String[0:4]), month=11, day=1, hour=1, tzinfo=Eastern_Standard_Time_Zone)
+        end_daylight_savings += datetime.timedelta(days=(6 - end_daylight_savings.date().weekday()))
+
+        datetime_EST = \
+           datetime.datetime(int(ISO_DateTime_String[0:4]), # year
+                             int(ISO_DateTime_String[5:7]), # month
+                             int(ISO_DateTime_String[8:10]), # day
+                             int(ISO_DateTime_String[11:13]), # hour
+                             int(ISO_DateTime_String[14:16]), # minute
+                             int(ISO_DateTime_String[17:19]), # second
+                             iso_microseconds, # microseconds
+                             Eastern_Standard_Time_Zone)
+
+        if ((datetime_EST >= begin_daylight_savings) and (datetime_EST <= end_daylight_savings)):
+            minutes_offset = -4 * 60  # Eastern_Daylight_Time_Zone
+        else: minutes_offset = -5 * 60 # Eastern_Standard_Time_Zone
+
+    elif (iso_timezone_string[3] == ':'):
+        minutes_offset = (60 * int(iso_timezone_string[1:3])) + int(iso_timezone_string[4:6])
+    else:
+        minutes_offset = (60 * int(iso_timezone_string[1:3])) + int(iso_timezone_string[3:5])
+    if ((len(iso_timezone_string) > 0) and
+        (iso_timezone_string[0] == '-')): minutes_offset = -minutes_offset
+
+    # Return ISO_DateTime_String as UTC datetime
+    return datetime.datetime(int(ISO_DateTime_String[0:4]), # year
+                             int(ISO_DateTime_String[5:7]), # month
+                             int(ISO_DateTime_String[8:10]), # day
+                             int(ISO_DateTime_String[11:13]), # hour
+                             int(ISO_DateTime_String[14:16]), # minute
+                             int(ISO_DateTime_String[17:19]), # second
+                             iso_microseconds, # microseconds
+                             Time_Zone(minutes_offset)).astimezone(UTC_Time_Zone)
+
+
+from Graph_Index_0 import Graph_Index_0
+from Graph_Index_1 import Graph_Index_1
+
+import matplotlib
+
+matplotlib.use('AGG')
+
+from matplotlib_backend_kivyagg import FigureCanvasKivyAgg as FigureCanvas
+import matplotlib.pyplot as plotter
+from matplotlib.dates import MinuteLocator, HourLocator, DayLocator, DateFormatter
+
+
+def Get_Metric_Statistics_Datapoints(Metric_Index, Perion_End_UTC, Period_Hours):
+
+    if (Metric_Index == 0): return Graph_Index_0
+    else: return Graph_Index_1
+
+def Metric_Statistics_Datapoints_Time_and_Values(Metric_Statistics_Datapoints, Y_Factor):
+    data_point_list = []
+    for data_point in Metric_Statistics_Datapoints:
+        data_datetime = Parse_ISO_DateTime_String(data_point["Timestamp"])
+        nyc_wall_time_offset = NYC_Wall_DateTime_Offset(data_datetime)
+        data_datetime = data_datetime + datetime.timedelta(hours=int(nyc_wall_time_offset) / 100)
+        data_maximum = data_point["Maximum"] * Y_Factor
+        data_average = data_point["Average"] * Y_Factor
+        data_point_list.append((data_datetime, data_maximum, data_average))
+    data_point_list.sort()
+
+    data_time_list = [time for time, max, avg in data_point_list]
+    data_max_list = [max for time, max, avg in data_point_list]
+    data_avg_list = [avg for time, max, avg in data_point_list]
+    return (data_time_list, data_max_list, data_avg_list)
+
+
+every_day = tuple([day for day in range(31)])
+
+every_hour = tuple([hour for hour in range(24)])
+every_two_hours = tuple([(2 * hour) for hour in range(24 // 2)])
+every_three_hours = tuple([(3 * hour) for hour in range(24 // 3)])
+every_four_hours = tuple([(4 * hour) for hour in range(24 // 4)])
+every_six_hours = tuple([(6 * hour) for hour in range(24 // 6)])
+every_twelve_hours = tuple([(12 * hour) for hour in range(24 // 12)])
+
+every_five_minutes_labeled = tuple([(5 * minute) for minute in range(60 // 5) if (minute > 0)])
+every_ten_minutes_labeled = tuple([(10 * minute) for minute in range(60 // 10) if (minute > 0)])
+every_fifteen_minutes_labeled = tuple([(15 * minute) for minute in range(60 // 15) if (minute > 0)])
+every_thirty_minutes_labeled = tuple([(30 * minute) for minute in range(60 // 30) if (minute > 0)])
+every_thirty_minutes = tuple([(30 * minute) for minute in range(60 // 30)])
+
+
+def Prepare_Get_Metric_Statistics_Figure(Mertric_Statistics_List,
+                                         Period_Value, Graph_Width, Graph_Height,
+                                         Close_Existing_Plot_Figure):
+    if (Close_Existing_Plot_Figure is not None): plotter.close(Close_Existing_Plot_Figure)
+
+    line_width = 0.75
+
+    plot_figure = plotter.figure(figsize=((Graph_Width / 100), (Graph_Height / 100)), dpi=100)
+
+    axes = plot_figure.gca()
+    axis_2 = axes.twinx()
+
+    # Store tuples of (text, text_color) for the two axes
+    # There could be none, one, or two
+    left_y_axis_labels = []
+    right_y_axis_labels = []
+
+    minimum_time = None
+    maximum_time = None
+
+    for metric_stats in reversed(Mertric_Statistics_List):
+        metric_stats_descriptor = metric_stats.get("MetricDescriptor", {})
+        metric_stats_datapoints = metric_stats.get("Datapoints", [])
+        datapoints_time, datapoints_max, datapoints_avg = \
+            Metric_Statistics_Datapoints_Time_and_Values(metric_stats_datapoints,
+                                                         metric_stats_descriptor.get("YFactor", 1))
+        if ((minimum_time is None) and (maximum_time is None)):
+            minimum_time = datapoints_time[0]
+            maximum_time = datapoints_time[-1]
+        else:
+            minimum_time = min(minimum_time, datapoints_time[0])
+            maximum_time = max(maximum_time, datapoints_time[-1])
+
+        line_color = metric_stats_descriptor.get("Color", [0, 0, 0])
+
+        this_y_axis_label = (metric_stats_descriptor.get("MetricLabel", " "),
+                             tuple(metric_stats_descriptor.get("LabelColor", line_color)))
+        y_axis = metric_stats_descriptor.get("YAxis", "left")
+        if (y_axis == "left"):
+            left_y_axis_labels.append(this_y_axis_label)
+            this_axis = axes
+        else:
+            right_y_axis_labels.append(this_y_axis_label)
+            this_axis = axis_2
+
+        this_axis.plot(datapoints_time, datapoints_max, linewidth=line_width, color=tuple(line_color))
+        this_axis.tick_params('y', colors="black")
+
+    # Now draw left y axis labels and ...
+    if (len(left_y_axis_labels) > 0):
+        # Darker y-axis label text for legibility
+        label_text, label_color = left_y_axis_labels[0]
+        axes.set_ylabel(label_text, fontsize="large", color=label_color)
+
+        if (len(left_y_axis_labels) > 1):
+            label_text, label_color = left_y_axis_labels[1]
+            plotter.gcf().text(0.02, 0.55, label_text,
+                               rotation="vertical", verticalalignment="center",
+                               fontsize="large", color=label_color)
+    # ... right y axis labels
+    if (len(right_y_axis_labels) > 0):
+        # Darker y-axis label text for legibility
+        label_text, label_color = right_y_axis_labels[0]
+        axis_2.set_ylabel(label_text, fontsize="large", color=label_color)
+
+        if (len(right_y_axis_labels) > 1):
+            label_text, label_color = right_y_axis_labels[1]
+            plotter.gcf().text(0.98, 0.55, label_text,
+                               rotation="vertical", verticalalignment="center",
+                               fontsize="large", color=label_color)
+
+    # Attempt optimum x axis (date/time) tic labeling, complicated, heuristic
+    major_minor_formatter = "hour"
+
+    # Adaptive time axis tics and tic labels
+    if ((Period_Value >= 1) and (Period_Value < 3)):
+        axes.xaxis.set_major_locator(HourLocator(every_hour))
+        axes.xaxis.set_minor_locator(MinuteLocator(every_five_minutes_labeled))
+        major_minor_formatter = "hour/minute"
+    elif ((Period_Value >= 3) and (Period_Value < 6)):
+        axes.xaxis.set_major_locator(HourLocator(every_hour))
+        axes.xaxis.set_minor_locator(MinuteLocator(every_ten_minutes_labeled))
+        major_minor_formatter = "hour/minute"
+    elif ((Period_Value >= 6) and (Period_Value < 8)):
+        axes.xaxis.set_major_locator(HourLocator(every_hour))
+        axes.xaxis.set_minor_locator(MinuteLocator(every_fifteen_minutes_labeled))
+        major_minor_formatter = "hour/minute"
+    elif ((Period_Value >= 8) and (Period_Value < 16)):
+        axes.xaxis.set_major_locator(HourLocator(every_hour))
+        axes.xaxis.set_minor_locator(MinuteLocator(every_thirty_minutes_labeled))
+        major_minor_formatter = "hour/minute"
+    elif ((Period_Value >= 16) and (Period_Value < 24)):
+        axes.xaxis.set_major_locator(HourLocator(every_hour))
+        axes.xaxis.set_minor_locator(MinuteLocator(every_thirty_minutes))
+
+    elif ((Period_Value >= 24) and (Period_Value < (24 + 12))):
+        axes.xaxis.set_major_locator(HourLocator(every_two_hours))
+        axes.xaxis.set_minor_locator(HourLocator(every_hour))
+
+    elif ((Period_Value >= (24 + 12)) and (Period_Value < (48 + 12))):
+        axes.xaxis.set_major_locator(HourLocator(every_three_hours))
+        axes.xaxis.set_minor_locator(HourLocator(every_hour))
+
+    elif ((Period_Value >= (48 + 12)) and (Period_Value < (72 + 12))):
+        axes.xaxis.set_major_locator(HourLocator(every_four_hours))
+        axes.xaxis.set_minor_locator(HourLocator(every_hour))
+
+    elif ((Period_Value >= (72 + 12)) and (Period_Value < (96 + 12))):
+        axes.xaxis.set_major_locator(HourLocator(every_six_hours))
+        axes.xaxis.set_minor_locator(HourLocator(every_three_hours))
+
+    elif ((Period_Value >= (96 + 12)) and (Period_Value < (120 + 12))):
+        axes.xaxis.set_major_locator(HourLocator(every_twelve_hours))
+        axes.xaxis.set_minor_locator(HourLocator(every_six_hours))
+
+    elif ((Period_Value >= (120 + 12)) and (Period_Value < (144 + 12))):
+        axes.xaxis.set_major_locator(DayLocator(every_day))
+        axes.xaxis.set_minor_locator(HourLocator(every_four_hours))
+        major_minor_formatter = "day"
+
+    elif ((Period_Value >= (144 + 12)) and (Period_Value < (168 + 12))):
+        axes.xaxis.set_major_locator(DayLocator(every_day))
+        axes.xaxis.set_minor_locator(HourLocator(every_six_hours))
+        major_minor_formatter = "day"
+
+    if (major_minor_formatter == "hour/minute"):
+        axes.xaxis.set_major_formatter(DateFormatter("%H:00\n%m/%d"))
+        axes.xaxis.set_minor_formatter(DateFormatter("%M"))
+    elif (major_minor_formatter == "hour"):
+        axes.xaxis.set_major_formatter(DateFormatter("%H:00\n%m/%d"))
+    elif (major_minor_formatter == "day"):
+        axes.xaxis.set_major_formatter(DateFormatter("%H:00\n%m/%d"))
+
+    plotter.setp(axes.get_xticklabels(), rotation=0, ha="center")
+
+    # cpu_time is sorted, so this can work
+    axes.set_xlim(minimum_time, maximum_time)
+    axes.grid(True)
+
+    # Trim off real estate wasting margins
+    plotter.subplots_adjust(left=0.06, bottom=0.13, right=0.94, top=0.98, wspace=0, hspace=0)
+
+    canvas = FigureCanvas(plot_figure)
+    canvas.draw()
+
+    return (canvas, plot_figure)
+
+
 # Since this is a "static" widget, it's more convenient to create as kv
 Builder.load_string(
 """
@@ -547,8 +822,18 @@ class Build_Kivy_App_UI ( App ):
         Window.bind(on_key_down=self.on_keyboard_down)
 
     def build(self):
-        self.title = "Kivy App Demo Step2"
+        self.title = "Kivy App Demo Step3"
         Window.bind(on_key_down=self.on_keyboard_down)
+
+        Vertical_Graph_Height_Factor = 0.96
+
+        # Automatically size widget images to fit screen real estate
+        horizontal_size, vertical_size = Window.size
+        self.Horizontal_Graph_Width = int(round(horizontal_size * 0.98))
+        self.Vertical_Graph_Height = vertical_size * Vertical_Graph_Height_Factor
+
+        self.fw_plot_figure_0 = None
+        self.fw_plot_figure_1 = None
 
         self.Period_Duration_Hours = 24
         self.Period_End_Hours_Ago = 0
@@ -672,23 +957,54 @@ class Build_Kivy_App_UI ( App ):
         self.update()
 
     def update ( self, *args ):
+        datetime_now_utc = datetime.datetime.now(UTC_Time_Zone)
+        period_end_utc = datetime_now_utc - datetime.timedelta(hours=self.Period_End_Hours_Ago)
+
+        graph_width = self.Horizontal_Graph_Width
+
         if (self.Visible_Payload_Count == 2):
             self.Duplex_Upper_Payload_Box.clear_widgets()
             self.Duplex_Lower_Payload_Box.clear_widgets()
 
-            upper_payload_label = \
-                Label(text=Period_Span_NYC_Wall_Time(self.Period_Duration_Hours, self.Period_End_Hours_Ago))
-            self.Duplex_Upper_Payload_Box.add_widget(upper_payload_label)
-            lower_payload_label = \
-                Label(text=Period_Span_NYC_Wall_Time(self.Period_Duration_Hours, self.Period_End_Hours_Ago))
-            self.Duplex_Lower_Payload_Box.add_widget(lower_payload_label)
+            graph_height = int(round(self.Vertical_Graph_Height / 2.0))
+
+            metric_statistics_list = \
+                Get_Metric_Statistics_Datapoints(0, period_end_utc, self.Period_Duration_Hours)
+
+            metric_figure_widget, plot_figure = \
+                Prepare_Get_Metric_Statistics_Figure(metric_statistics_list,
+                                                     self.Period_Duration_Hours, graph_width, graph_height,
+                                                     self.fw_plot_figure_0)
+
+            self.fw_plot_figure_0 = plot_figure
+            self.Duplex_Upper_Payload_Box.add_widget(metric_figure_widget)
+
+            metric_statistics_list = \
+                Get_Metric_Statistics_Datapoints(1, period_end_utc, self.Period_Duration_Hours)
+
+            metric_figure_widget, plot_figure = \
+                Prepare_Get_Metric_Statistics_Figure(metric_statistics_list,
+                                                     self.Period_Duration_Hours, graph_width, graph_height,
+                                                     self.fw_plot_figure_1)
+
+            self.fw_plot_figure_1 = plot_figure
+            self.Duplex_Lower_Payload_Box.add_widget(metric_figure_widget)
 
         elif (self.Visible_Payload_Count == 1):
+            graph_height = int(round(self.Vertical_Graph_Height))
+
             self.Simplex_Lower_Payload_Box.clear_widgets()
 
-            lower_payload_label = \
-                Label(text=Period_Span_NYC_Wall_Time(self.Period_Duration_Hours, self.Period_End_Hours_Ago))
-            self.Simplex_Lower_Payload_Box.add_widget(lower_payload_label)
+            metric_statistics_list = \
+                Get_Metric_Statistics_Datapoints(0, period_end_utc, self.Period_Duration_Hours)
+
+            metric_figure_widget, plot_figure = \
+                Prepare_Get_Metric_Statistics_Figure(metric_statistics_list,
+                                                     self.Period_Duration_Hours, graph_width, graph_height,
+                                                     self.fw_plot_figure_0)
+
+            self.fw_plot_figure_0 = plot_figure
+            self.Simplex_Lower_Payload_Box.add_widget(metric_figure_widget)
 
         self.Kivy_App_UI.canvas.ask_update()
 
