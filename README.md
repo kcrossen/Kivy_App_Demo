@@ -314,3 +314,84 @@ class TimeSpanControlBar(BoxLayout):
         return True
 ```
 This creates a control bar containing two logarithmic sliders. The Python code required for functionality is relatively complicated while the layout is exceedingly simple. In this case, it is harder to see a significant advantage to the kv approach, because the "code behind the form" would have to be similar.
+
+# Kivy_App_Demo_Step2
+In this revision you can add a help screen. Kivy's built-in widgets are not well suited to a words-and-pictures help presentation, so you will have to subclass yet again:
+```
+Builder.load_string("""
+<LabelExtended>:
+  background_color: 1, 1, 1, 1
+  canvas.before:
+    Color:
+      rgba: self.background_color
+    Rectangle:
+      pos: self.pos
+      size: self.size
+""")
+
+class LabelExtended(Label):
+    background_color = ListProperty([1, 1, 1, 1])
+
+Factory.register('KivyExtended', module='LabelExtended')
+
+
+class GridLayoutExtended ( GridLayout ):
+    def __init__(self, **kwargs):
+        # Gotta be able to do its business
+        super(GridLayoutExtended, self).__init__(**kwargs)
+
+        with self.canvas.before:
+            Color(1, 0, 0, 1)
+            self.rect = Rectangle(size=self.size, pos=self.pos)
+
+        self.bind(size=self._update_rect, pos=self._update_rect)
+
+    def _update_rect(self, instance, value):
+        self.rect.pos = instance.pos
+        self.rect.size = instance.size
+```
+These create Labels and GridLayouts with background colors. Labels can be quite powerful in that they support a variant of markup, allowing character-by-character control of text attributes, bolding for example. More information can be found here: https://kivy.org/doc/stable/api-kivy.core.text.markup.html.
+
+Use of this Label markup capability is shown here:
+```
+def Build_Help_GridLayout ( on_help_escape_callback ):
+    kivy_app_help = \
+        GridLayoutExtended(cols=1, padding=[2, 2, 0, 2], spacing=0,
+                           size_hint=(None, None), width=Initialize_Window_Width)
+
+    cwremote_screen_image = \
+        Image(source=path_to_cwremote_screen_image,
+              size=((Initialize_Window_Width - 4), 815), size_hint=(None, None))
+    kivy_app_help.add_widget(cwremote_screen_image)
+
+    help_escape_button = Button(text="Return to graphs", bold=True,
+                                background_color=[1, 0, 0, 1],
+                                size=((Initialize_Window_Width - 4), 28), size_hint=(None, None))
+    help_escape_button.bind(on_press=on_help_escape_callback)
+    kivy_app_help.add_widget(help_escape_button)
+
+    CW_Remote_Help_Text_Paragraphs = [
+        "The red '[b][color=ff0000]A[/color][/b]' marks the slider that adjusts the duration of the period for which the graphed data will appear. " +
+        "It can adjust from 1 hour to 7 days (168 hours). " +
+        "The label to the left of the this slider displays the current period duration in days and hours. " +
+        "This slider is logarithmic, it is increasingly sensitive toward the right end of the scale. ",
+
+        "The red '[b][color=ff0000]B[/color][/b]' marks the slider that adjusts the hours before now that the graphed period ends. " +
+        "It can adjust from 0 hours to 7 days (168 hours). " +
+        "The label to the right of the this slider displays the days and hours before now that the graphed period ends. " +
+        "This slider is logarithmic, it is increasingly sensitive toward the right end of the scale. "
+    ]
+
+    # Add help text paragraphs to grid.
+    for help_text_paragraph in CW_Remote_Help_Text_Paragraphs:
+        help_txt_para = LabelExtended(text=help_text_paragraph, markup=True, text_size=(1272, None),
+                                      color=[0, 0, 0, 1], padding_x=2,
+                                      width=(Initialize_Window_Width - 4), size_hint=(None, None))
+        help_txt_para.height = math.ceil(len(help_text_paragraph) * (1.33 / 255)) * 25
+        kivy_app_help.add_widget(help_txt_para)
+
+        kivy_app_help.bind(minimum_height=kivy_app_help.setter('height'))
+
+    return kivy_app_help
+```
+This also demonstrates a third approach to encapsulating complicated UI construction, the function approach. Here it is being used to reduce "clutter" in the App build code. Since the help widget has only one reference to anything outside itself, this "escape-from-me" callback is passed in from the App parent.
