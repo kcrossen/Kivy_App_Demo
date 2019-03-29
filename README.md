@@ -326,7 +326,7 @@ This creates a control bar containing two logarithmic sliders. The Python code r
 [to table of contents](#table-of-contents)
 
 ## Kivy App Demo Step2
-In PyCharm, load the file Kivy_App_Demo_Step2.py also to be found where ever you unpacked the Kivy_App_Demo_PyInstaller_Kit, and you are now good to go for this step.
+In PyCharm, load the file `Kivy_App_Demo_Step2.py` also to be found where ever you unpacked the Kivy_App_Demo_PyInstaller_Kit, and you are now good to go for this step.
 
 In this revision you can add a help screen. Kivy's built-in widgets are not well suited to a words-and-pictures help presentation, so you will have to subclass yet again:
 ```
