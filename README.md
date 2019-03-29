@@ -6,6 +6,8 @@
 
 [Kivy_App_Demo_Step2](#kivy-app-demo-step2)
 
+[Kivy_App_Demo_Step3](#kivy-app-demo-step3)
+
 Getting started with Kivy can be a very steep learning curve. The demo examples at the Kivy site (kivy.org) are mostly along the lines of Hello World, which are constructed to test a specific feature or demonstrate the use of that feature. They are unlikely to apply meaningfully to what you are trying to accomplish, and that's why you use Python, right?
 
 Another problem with the Kivy demo examples is that they don't much get into some of the more "advanced" features that nearly every application author will eventually want. For example, how do you install your own icon, how do you package a standard OSX application, and so forth?
@@ -330,7 +332,7 @@ This creates a control bar containing two logarithmic sliders. The Python code r
 ## Kivy App Demo Step2
 In PyCharm, load the file `Kivy_App_Demo_Step2.py` also to be found where ever you unpacked the Kivy_App_Demo_PyInstaller_Kit, and you are now good to go for this step.
 
-In this revision you can add a help screen. Kivy's built-in widgets are not well suited to a words-and-pictures help presentation, so you will have to subclass yet again:
+In this revision you add a help screen. Kivy's built-in widgets are not well suited to a words-and-pictures help presentation, so you will have to subclass yet again:
 ```
 Builder.load_string("""
 <LabelExtended>:
@@ -411,3 +413,10 @@ def Build_Help_GridLayout ( on_help_escape_callback ):
 This also demonstrates a third approach to encapsulating complicated UI construction, the function approach. Here it is being used to reduce "clutter" in the App build code. Since the help widget has only one reference to anything outside itself, this "escape-from-me" callback is passed in from the App parent.
 
 The three approaches to encapsulation (kv, subclassing, and functions) are not religions. Use whichever creates your desired functionality most easily and naturally for you.
+
+[to table of contents](#table-of-contents)
+
+## Kivy App Demo Step3
+In PyCharm, load the file `Kivy_App_Demo_Step3.py` also to be found where ever you unpacked the Kivy_App_Demo_PyInstaller_Kit, and you are now good to go for this step.
+
+In this revision you add graphing capability to the "payloads". Since you almost certainly have different target data, I have included a few sample datasets to demonstrate how the plotting is accomplished. If you want the same target datasets, data from AWS/CloudWatch, the CW_Remote repository is your next step.
