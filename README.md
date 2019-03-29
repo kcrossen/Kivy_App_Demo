@@ -1,4 +1,4 @@
-# Kivy by example
+# Kivy by Example
 ## Step-by-step from kit download to OSX application
 
 ### Table of Contents ###
