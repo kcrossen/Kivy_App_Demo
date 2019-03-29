@@ -407,3 +407,5 @@ def Build_Help_GridLayout ( on_help_escape_callback ):
     return kivy_app_help
 ```
 This also demonstrates a third approach to encapsulating complicated UI construction, the function approach. Here it is being used to reduce "clutter" in the App build code. Since the help widget has only one reference to anything outside itself, this "escape-from-me" callback is passed in from the App parent.
+
+The three approaches to encapsulation (kv, subclassing, and functions) are not religions. Use whichever creates your desired functionality most easily and naturally for you.
