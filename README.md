@@ -434,21 +434,25 @@ $ pip install --upgrade pyinstaller<br/>
 Then:
 ```
 $ CD `<where you unpacked Kivy_App_Demo_PyInstaller_Kit>`
-$ ls -l ./*
+$ ls -l *
 ```
 This should list approximately:
 ```
--rw-r--r--@ 1 Ken  staff   717681 Mar 29 13:41 ./Graph_Index_0.py
--rw-r--r--  1 Ken  staff   225048 Mar 29 14:12 ./Graph_Index_0.pyc
--rw-r--r--@ 1 Ken  staff   501094 Mar 29 13:47 ./Graph_Index_1.py
--rw-r--r--  1 Ken  staff   187954 Mar 29 14:12 ./Graph_Index_1.pyc
--rwxr--r--  1 Ken  staff    24233 Mar 28 09:35 ./Kivy_App_Demo.py
--rwxr--r--  1 Ken  staff    29248 Mar 29 14:19 ./Kivy_App_Demo_Step2.py
--rwxr--r--  1 Ken  staff    44361 Mar 29 14:18 ./Kivy_App_Demo_Step3.py
--rw-r--r--@ 1 Ken  staff      344 Mar 28 09:43 ./READ_ME_FIRST.txt
--rw-r--r--  1 Ken  staff   802668 Mar 13 13:19 ./appIcon.icns
+-rw-r--r--@ 1 Ken  staff   717681 Mar 29 13:41 Graph_Index_0.py
+-rw-r--r--  1 Ken  staff   225048 Mar 29 14:12 Graph_Index_0.pyc
+-rw-r--r--@ 1 Ken  staff   501094 Mar 29 13:47 Graph_Index_1.py
+-rw-r--r--  1 Ken  staff   187954 Mar 29 14:12 Graph_Index_1.pyc
+-rwxr--r--  1 Ken  staff    24233 Mar 28 09:35 Kivy_App_Demo.py
+-rw-r--r--  1 Ken  staff  1852560 Mar 29 14:23 Kivy_App_Demo_PyInstaller_Kit.zip
+-rwxr--r--  1 Ken  staff    29248 Mar 29 14:19 Kivy_App_Demo_Step2.py
+-rwxr--r--  1 Ken  staff    44361 Mar 29 14:18 Kivy_App_Demo_Step3.py
+-rw-r--r--  1 Ken  staff     1120 Mar 29 15:57 Kivy_App_Demo_Step3.spec
+-rw-r--r--@ 1 Ken  staff      344 Mar 28 09:43 READ_ME_FIRST.txt
+-rw-r--r--  1 Ken  staff   802668 Mar 13 13:19 appIcon.icns
+-rw-r--r--  1 Ken  staff    12618 Mar 25 11:51 matplotlib_backend_kivyagg.py
+-rw-r--r--  1 Ken  staff    12373 Mar 25 11:55 matplotlib_backend_kivyagg.pyc
 
-./data:
+data:
 total 1944
 -rw-r--r--@ 1 Ken  staff  890512 Mar 29 09:11 CW_Remote_Screen.png
 -rw-r--r--@ 1 Ken  staff   85983 Mar 12 21:04 kivy-app-demo-icon-512.png
@@ -459,3 +463,12 @@ And finally, using the Step3 application as an example:
 ```
 $ pyinstaller -F -w --exclude-module _tkinter --exclude-module Tkinter --exclude-module enchant --exclude-module twisted --add-data 'data/*.*:data' --osx-bundle-identifier com.kivyappdemo.kivyappdemostep3  -i appIcon.icns  Kivy_App_Demo_Step3.py
 ```
+iTerm2 screen filling text, a few minutes and:
+```
+65772 INFO: Building EXE from EXE-00.toc completed successfully.
+66262 INFO: checking BUNDLE
+66262 INFO: Building BUNDLE because BUNDLE-00.toc is non existent
+66262 INFO: Building BUNDLE BUNDLE-00.toc
+66399 INFO: moving BUNDLE data files to Resource directory
+```
+The packaged OSX App will be `dist/Kivy_App_Demo_Step3` with the "medical monitor" icon.
