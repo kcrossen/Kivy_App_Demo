@@ -1,4 +1,9 @@
-# Kivy_App_Demo
+# Getting started with Kivy by example
+### Table of Contents ###
+[Kivy_App_Demo](#incident-analysis)
+
+[Kivy_App_Demo_Step2](#kivy-app-demo-step2)
+
 Getting started with Kivy can be a very steep learning curve. The demo examples at the Kivy site (kivy.org) are mostly along the lines of Hello World, which are constructed to test a specific feature or demonstrate the use of that feature. They are unlikely to apply meaningfully to what you are trying to accomplish, and that's why you use Python, right?
 
 Another problem with the Kivy demo examples is that they don't much get into some of the more "advanced" features that nearly every application author will eventually want. For example, how do you install your own icon, how do you package a standard OSX application, and so forth?
@@ -16,6 +21,7 @@ To setup PyCharm for using Kivy, not covered by PyCharm's installation, use PyCh
 $ pip install kivy
 ```
 
+## Kivy App Demo
 In PyCharm, load the file `Kivy_App_Demo.py` to be found where ever you unpacked the Kivy_App_Demo_PyInstaller_Kit, and you are now good to go.
 
 Any Kivy application results from a structure composed of "widgets", each of which accomplishes some small part of your task. This structure, which can be seen as an upside-down tree or alternately as the stump and root system of a felled tree, must always be a widget that you have authored, the App widget. But it is possible for you to "containerize" or encapsulate your own widgets, and use your own widgets as components of your application structure.
@@ -315,7 +321,9 @@ class TimeSpanControlBar(BoxLayout):
 ```
 This creates a control bar containing two logarithmic sliders. The Python code required for functionality is relatively complicated while the layout is exceedingly simple. In this case, it is harder to see a significant advantage to the kv approach, because the "code behind the form" would have to be similar.
 
-# Kivy_App_Demo_Step2
+[to table of contents](#table-of-contents)
+
+## Kivy App Demo Step2
 In this revision you can add a help screen. Kivy's built-in widgets are not well suited to a words-and-pictures help presentation, so you will have to subclass yet again:
 ```
 Builder.load_string("""
