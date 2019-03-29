@@ -430,7 +430,7 @@ To package your application as a standard OSX App, fire up your terminal program
 You should have already done:<br/>
 $ pip install pyinstaller<br/>
 or at the very least recently done:<br/>
-$ pip install --upgrade pyinstaller
+$ pip install --upgrade pyinstaller<br/>
 Then:
 ```
 $ CD `<where you unpacked Kivy_App_Demo_PyInstaller_Kit>`
