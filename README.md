@@ -8,6 +8,8 @@
 
 [Kivy_App_Demo_Step3](#kivy-app-demo-step3)
 
+[Kivy_App_Demo_Step4](#kivy-app-demo-step4)
+
 [Kivy_App_Demo OSX App](#kivy-app-demo-osx-app)
 
 If you are a tech-savvy person, with comparatively modest programming experience, mostly in Python, but want to create programs that display graphical output, you came to the right place. Python and Kivy are probably a good fit for your capabilities. Scientists, academics, engineers, and so on, have all they can handle staying abreast of their own field. Becoming a Kivy expert is not in the cards.
@@ -430,6 +432,15 @@ The three approaches to encapsulation (kv, subclassing, and functions) are not r
 In PyCharm, load the file `Kivy_App_Demo_Step3.py` also to be found where ever you unpacked the Kivy_App_Demo_PyInstaller_Kit, and you are now good to go for this step.
 
 In this revision you add graphing capability to the "payloads". Since you almost certainly have different target data, I have included a few sample datasets to demonstrate how the plotting is accomplished. If you want the same target datasets, data from AWS/CloudWatch, the CW_Remote repository is your next step.
+
+[to table of contents](#table-of-contents)
+
+## Kivy App Demo Step4
+In PyCharm, load the file `Kivy_App_Demo_Step3.py` also to be found where ever you unpacked the Kivy_App_Demo_PyInstaller_Kit, and you are now good to go for this step.
+
+In this revision you add zooming on plotted graph "payloads". This revision also illustrates the radically different drawing methods of Kivy for a relatively hard use case, "rubberbanding" a bounding box. This is the continuously updating rectangle as you define the graph area into which you'd like to zoom.
+
+Since you almost certainly have different target data, I have included a few sample datasets to demonstrate how the plotting is accomplished. If you want the same target datasets, data from AWS/CloudWatch, the CW_Remote repository is your next step.
 
 [to table of contents](#table-of-contents)
 
